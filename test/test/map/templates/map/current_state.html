@@ -1,0 +1,106 @@
+{% extends 'map/base.html' %}
+
+{% block content %}
+
+{% if messages %}
+<div style="padding:8px 0;">
+  {% for message in messages %}
+  <div class="alert alert-{% if message.tags == 'error' %}danger{% elif message.tags == 'warning' %}warning{% else %}success{% endif %} alert-dismissable" style="margin-bottom:6px;">
+    <button type="button" class="close" data-dismiss="alert">&times;</button>
+    {{ message }}
+  </div>
+  {% endfor %}
+</div>
+{% endif %}
+
+<!-- Page splits: 38% sidebar, 60% map -->
+<div style="display:flex; gap:2%; align-items:flex-start;">
+
+  <!-- ── Sidebar ─────────────────────────────────────── -->
+  <div style="width:38%; min-width:260px;">
+
+    <h3 style="margin-top:10px;">📞 Input Call</h3>
+    <p style="font-size:12px; color:#555;">Enter the address of the emergency call in Chandigarh.</p>
+    <form method="POST" class="post-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label for="{{ form.addr.id_for_label }}">Address</label>
+        {{ form.addr }}
+      </div>
+      <button type="submit" name="call_submit" class="btn btn-danger btn-block">
+        🚨 Dispatch Ambulance
+      </button>
+    </form>
+
+    <hr>
+
+    <h3>🚑 Activate Ambulance</h3>
+    <p style="font-size:12px; color:#555;">Reactivate an ambulance that has returned from a call.</p>
+
+    <!-- Legend -->
+    <div style="font-size:12px; margin-bottom:8px;">
+      <span style="color:#2b6abe; font-size:16px;">●</span> Active &nbsp;
+      <span style="color:#888; font-size:16px;">●</span> Inactive
+    </div>
+
+    {% load static %}
+    <form method="POST" class="post-form">
+      {% csrf_token %}
+      <div class="form-group">
+        <label>Ambulance ID</label>
+        {{ form2.amb_id }}
+      </div>
+      <button type="submit" name="amb_submit" class="btn btn-primary btn-block">
+        ✅ Set Active
+      </button>
+    </form>
+
+    <hr>
+
+    <!-- Recent Events feed -->
+    <h3>📋 Recent Events</h3>
+    <p style="font-size:12px; color:#555;">Live feed of dispatches and activations.</p>
+
+    {% if recent_events_query %}
+    <div style="max-height:260px; overflow-y:auto;">
+      <table class="table table-condensed table-striped" style="font-size:11px;">
+        <thead>
+          <tr><th>Time</th><th>Event</th></tr>
+        </thead>
+        <tbody>
+          {% for item in recent_events_query %}
+          <tr>
+            <td style="white-space:nowrap;">{{ item.time|date:'d/m H:i' }}</td>
+            <td>{{ item.event_desc }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+    {% else %}
+    <p style="font-size:12px; color:#999;">No events yet.</p>
+    {% endif %}
+
+  </div><!-- /sidebar -->
+
+  <!-- ── Map ──────────────────────────────────────────── -->
+  <div style="flex:1;">
+    {% block map %}
+    <!-- Map renders here after first dispatch/activation -->
+    <div style="height:550px; background:#e8e8e8; border-radius:4px;
+                display:flex; align-items:center; justify-content:center;
+                flex-direction:column; color:#777;">
+      <div style="font-size:48px;">🗺️</div>
+      <div style="font-size:14px; margin-top:8px;">
+        Map will appear here after the first dispatch or ambulance activation.
+      </div>
+      <div style="font-size:12px; margin-top:4px; color:#aaa;">
+        Enter an address above and click "Dispatch Ambulance" to generate the map.
+      </div>
+    </div>
+    {% endblock %}
+  </div><!-- /map -->
+
+</div><!-- /flex -->
+
+{% endblock %}

@@ -1,0 +1,272 @@
+{% extends "django_sb_admin/base.html" %}{% load static %}
+
+{% block sb_admin_breadcrumb %}<i class="fa fa-dashboard"></i><a href="/">SmartDispatch</a>{% endblock %}
+{% block sb_admin_breadcrumb_active %}<li class="active"><i class="fa fa-bar-chart-o"></i> Charts</li>{% endblock %}
+
+{% block sb_admin_custom_css %}
+<style>
+  .chart-panel { background:#fff; border:1px solid #ddd; border-radius:6px; padding:18px; margin-bottom:20px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .chart-panel h4 { margin:0 0 12px; color:#222; font-size:13px; font-weight:700; }
+  .stat-box { background:#fff; border:1px solid #ddd; border-radius:6px; padding:14px; text-align:center; margin-bottom:18px; box-shadow:0 1px 4px rgba(0,0,0,.07); }
+  .stat-box .num { font-size:30px; font-weight:800; }
+  .stat-box .lbl { font-size:11px; color:#777; margin-top:3px; }
+</style>
+{% endblock %}
+
+{% block sb_admin_content %}
+<div class="row">
+  <div class="col-lg-12">
+    <h2 class="page-header"><i class="fa fa-bar-chart-o"></i> SmartDispatch Analytics <small>— Chandigarh Tricity EMS</small></h2>
+  </div>
+</div>
+
+<!-- Stat Boxes -->
+<div class="row">
+  <div class="col-lg-2 col-sm-4">
+    <div class="stat-box"><div class="num" style="color:#2980b9;">{{ total_ambulances }}</div><div class="lbl"><i class="fa fa-ambulance"></i> Total Ambulances</div></div>
+  </div>
+  <div class="col-lg-2 col-sm-4">
+    <div class="stat-box"><div class="num" style="color:#27ae60;">{{ active_ambulances }}</div><div class="lbl"><i class="fa fa-check-circle"></i> Active Now</div></div>
+  </div>
+  <div class="col-lg-2 col-sm-4">
+    <div class="stat-box"><div class="num" style="color:#e74c3c;">{{ total_dispatches }}</div><div class="lbl"><i class="fa fa-bolt"></i> Total Dispatches</div></div>
+  </div>
+  <div class="col-lg-2 col-sm-4">
+    <div class="stat-box"><div class="num" style="color:#8e44ad;">{{ total_ems_calls }}</div><div class="lbl"><i class="fa fa-phone"></i> EMS Calls (Total)</div></div>
+  </div>
+  <div class="col-lg-2 col-sm-4">
+    <div class="stat-box"><div class="num" style="color:#d35400;">{{ avg_response_min }}</div><div class="lbl"><i class="fa fa-clock-o"></i> Avg Response (min)</div></div>
+  </div>
+  <div class="col-lg-2 col-sm-4">
+    <div class="stat-box">
+      <div class="num" style="color:#16a085;">
+        {% widthratio active_ambulances total_ambulances 100 %}%
+      </div>
+      <div class="lbl"><i class="fa fa-pie-chart"></i> Fleet Availability</div>
+    </div>
+  </div>
+</div>
+
+<!-- Row 1: Daily EMS calls timeline + Event type breakdown -->
+<div class="row">
+  <div class="col-lg-8">
+    <div class="chart-panel">
+      <h4><i class="fa fa-line-chart"></i> EMS Calls — Last 30 Days</h4>
+      <canvas id="chartTimeline" height="130"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-4">
+    <div class="chart-panel">
+      <h4><i class="fa fa-pie-chart"></i> Event Type Distribution</h4>
+      <canvas id="chartEventTypes" height="130"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Row 2: Calls by hour + Calls by day of week -->
+<div class="row">
+  <div class="col-lg-6">
+    <div class="chart-panel">
+      <h4><i class="fa fa-clock-o"></i> EMS Calls by Hour of Day</h4>
+      <canvas id="chartByHour" height="170"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="chart-panel">
+      <h4><i class="fa fa-calendar"></i> EMS Calls by Day of Week</h4>
+      <canvas id="chartByDow" height="170"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Row 3: Calls by month + Top zones -->
+<div class="row">
+  <div class="col-lg-6">
+    <div class="chart-panel">
+      <h4><i class="fa fa-calendar-o"></i> EMS Calls by Month</h4>
+      <canvas id="chartByMonth" height="170"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-6">
+    <div class="chart-panel">
+      <h4><i class="fa fa-map-marker"></i> Top 10 Zones by Call Volume</h4>
+      <canvas id="chartTopZones" height="170"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Row 4: Current hour demand heatmap + Ambulance status -->
+<div class="row">
+  <div class="col-lg-7">
+    <div class="chart-panel">
+      <h4><i class="fa fa-fire"></i> Current Hour Demand by Zone (Expected Calls)</h4>
+      <canvas id="chartDemand" height="170"></canvas>
+    </div>
+  </div>
+  <div class="col-lg-5">
+    <div class="chart-panel">
+      <h4><i class="fa fa-ambulance"></i> Ambulance Fleet Status</h4>
+      <canvas id="chartAmbStatus" height="170"></canvas>
+    </div>
+  </div>
+</div>
+
+<!-- Row 5: Recent events table -->
+<div class="row">
+  <div class="col-lg-12">
+    <div class="chart-panel">
+      <h4><i class="fa fa-table"></i> Recent Events Log</h4>
+      <div style="max-height:320px; overflow-y:auto;">
+        <table class="table table-striped table-condensed" style="font-size:12px; margin-bottom:0;">
+          <thead style="position:sticky;top:0;background:#f8f8f8;">
+            <tr><th>Time</th><th>Type</th><th>Description</th><th>Unit</th></tr>
+          </thead>
+          <tbody>
+            {% for ev in recent_events %}
+            <tr>
+              <td style="white-space:nowrap;">{{ ev.time|date:'d/m/y H:i' }}</td>
+              <td>
+                {% if ev.event_type == 'Dispatch' %}<span class="label label-danger">Dispatch</span>
+                {% elif ev.event_type == 'Activate' or ev.event_type == 'Return' %}<span class="label label-success">{{ ev.event_type }}</span>
+                {% elif ev.event_type == 'Event' %}<span class="label label-warning">EMS Call</span>
+                {% elif ev.event_type == 'AutoPos' %}<span class="label label-info">Auto-Position</span>
+                {% else %}<span class="label label-default">{{ ev.event_type }}</span>{% endif %}
+              </td>
+              <td>{{ ev.event_desc }}</td>
+              <td>{% if ev.unit %}#{{ ev.unit }}{% endif %}</td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="4" class="text-muted text-center" style="padding:20px;">
+              No events yet. Run: <code>python manage.py generate_fake_data</code>
+            </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block sb_admin_custom_js %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script>
+const C = {
+  blue:   'rgba(41,128,185,0.8)',
+  red:    'rgba(192,57,43,0.8)',
+  green:  'rgba(39,174,96,0.8)',
+  orange: 'rgba(211,84,0,0.8)',
+  purple: 'rgba(142,68,173,0.8)',
+  teal:   'rgba(22,160,133,0.8)',
+  grey:   'rgba(127,140,141,0.8)',
+};
+const defaults = {
+  responsive: true,
+  plugins: { legend: { display: false } },
+};
+
+// 1. Timeline
+new Chart('chartTimeline', {
+  type: 'line',
+  data: {
+    labels: {{ timeline_labels|safe }},
+    datasets: [{ data: {{ timeline_data|safe }}, label: 'EMS Calls',
+      borderColor: C.blue, backgroundColor: 'rgba(41,128,185,0.1)',
+      fill: true, tension: 0.3, pointRadius: 2 }]
+  },
+  options: { ...defaults, plugins: { legend: { display: false } },
+    scales: { y: { beginAtZero:true, title:{display:true,text:'Calls'} } } }
+});
+
+// 2. Event types doughnut
+new Chart('chartEventTypes', {
+  type: 'doughnut',
+  data: {
+    labels: {{ event_labels|safe }},
+    datasets: [{ data: {{ event_data|safe }},
+      backgroundColor: [C.red, C.green, C.orange, C.blue, C.purple, C.teal, C.grey] }]
+  },
+  options: { responsive:true, plugins:{ legend:{ position:'bottom', labels:{ boxWidth:10, font:{size:10} } } } }
+});
+
+// 3. By hour
+new Chart('chartByHour', {
+  type: 'bar',
+  data: {
+    labels: {{ hour_labels|safe }},
+    datasets: [{ data: {{ hour_data|safe }}, backgroundColor: C.orange, borderRadius: 2 }]
+  },
+  options: { ...defaults, scales: {
+    y: { beginAtZero:true, title:{display:true,text:'EMS Calls'} },
+    x: { title:{display:true,text:'Hour of Day'} }
+  }}
+});
+
+// 4. By day of week
+new Chart('chartByDow', {
+  type: 'bar',
+  data: {
+    labels: {{ dow_labels|safe }},
+    datasets: [{ data: {{ dow_data|safe }}, backgroundColor: C.purple, borderRadius: 3 }]
+  },
+  options: { ...defaults, scales: { y: { beginAtZero:true } } }
+});
+
+// 5. By month
+new Chart('chartByMonth', {
+  type: 'line',
+  data: {
+    labels: {{ month_labels|safe }},
+    datasets: [{ data: {{ month_data|safe }},
+      borderColor: C.teal, backgroundColor: 'rgba(22,160,133,0.1)',
+      fill:true, tension:0.3, pointRadius:3, pointBackgroundColor: C.teal }]
+  },
+  options: { ...defaults, scales: { y: { beginAtZero:true } } }
+});
+
+// 6. Top zones (horizontal bar)
+new Chart('chartTopZones', {
+  type: 'bar',
+  data: {
+    labels: {{ zone_labels|safe }},
+    datasets: [{ data: {{ zone_data|safe }}, backgroundColor: C.red, borderRadius: 3 }]
+  },
+  options: { ...defaults, indexAxis: 'y',
+    scales: { x: { beginAtZero:true, title:{display:true,text:'EMS Calls'} } } }
+});
+
+// 7. Current hour demand
+new Chart('chartDemand', {
+  type: 'bar',
+  data: {
+    labels: {{ demand_zone_labels|safe }},
+    datasets: [{ data: {{ demand_zone_data|safe }},
+      backgroundColor: 'rgba(231,76,60,0.8)', borderRadius: 3, label: 'Expected calls' }]
+  },
+  options: { ...defaults,
+    plugins: { legend: { display: false }, tooltip: { callbacks: {
+      label: ctx => `Expected: ${ctx.parsed.y} calls/hour`
+    }}},
+    scales: {
+      y: { beginAtZero:true, title:{display:true,text:'Expected calls/hour'} },
+      x: { ticks:{ maxRotation:30, font:{size:9} } }
+    }
+  }
+});
+
+// 8. Ambulance status doughnut
+new Chart('chartAmbStatus', {
+  type: 'doughnut',
+  data: {
+    labels: ['Active', 'Inactive / On Call'],
+    datasets: [{ data: [{{ amb_active|safe }}, {{ amb_inactive|safe }}],
+      backgroundColor: [C.green, C.grey] }]
+  },
+  options: { responsive:true,
+    plugins: { legend:{ position:'bottom' }, tooltip:{ callbacks:{
+      label: ctx => `${ctx.label}: ${ctx.parsed} ambulances`
+    }}}
+  }
+});
+</script>
+{% endblock %}

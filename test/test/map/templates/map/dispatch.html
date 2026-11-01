@@ -1,0 +1,277 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>SmartDispatch — Chandigarh</title>
+  <link rel="stylesheet" href="//maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.6.3/css/font-awesome.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; }
+    html, body { margin:0; padding:0; height:100%; font-family:Arial,sans-serif; background:#f0f2f5; }
+
+    .wrap { display:flex; height:100vh; overflow:hidden; }
+
+    /* ══ SIDEBAR ══════════════════════════════════════════ */
+    .sidebar {
+      width:300px; min-width:260px; max-width:320px;
+      background:#fff; border-right:2px solid #e0e0e0;
+      overflow-y:auto; padding:10px 12px; flex-shrink:0;
+      display:flex; flex-direction:column; gap:0;
+    }
+
+    .sidebar-section { margin-bottom:10px; }
+
+    h3.sec-title {
+      font-size:13px; font-weight:700; margin:0 0 4px;
+      color:#1a1a2e; display:flex; align-items:center; gap:5px;
+    }
+    p.hint { font-size:10px; color:#999; margin:0 0 6px; }
+    .divider { border:none; border-top:1px solid #efefef; margin:8px 0; }
+
+    /* forms */
+    .f-label { font-size:10px; font-weight:700; color:#555; display:block; margin-bottom:2px; }
+    .f-input {
+      width:100%; padding:6px 8px; font-size:12px;
+      border:1px solid #ccc; border-radius:4px; outline:none;
+    }
+    .f-input:focus { border-color:#2980b9; box-shadow:0 0 0 2px rgba(41,128,185,.15); }
+
+    .btn { width:100%; padding:8px; border:none; border-radius:4px;
+           font-size:12px; font-weight:700; cursor:pointer; margin-top:4px; }
+    .btn-dispatch { background:#c0392b; color:#fff; }
+    .btn-dispatch:hover { background:#a93226; }
+    .btn-activate { background:#2980b9; color:#fff; }
+    .btn-activate:hover { background:#2471a3; }
+
+    /* alert messages */
+    .msg { font-size:11px; padding:6px 9px; border-radius:4px; margin-bottom:5px; }
+    .msg-ok   { background:#d4edda; color:#155724; border:1px solid #c3e6cb; }
+    .msg-err  { background:#f8d7da; color:#721c24; border:1px solid #f5c6cb; }
+    .msg-warn { background:#fff3cd; color:#856404; border:1px solid #ffeeba; }
+
+    /* status pills */
+    .status-row { display:flex; gap:6px; flex-wrap:wrap; }
+    .pill {
+      font-size:11px; padding:3px 8px; border-radius:12px;
+      font-weight:600; display:inline-flex; align-items:center; gap:3px;
+    }
+    .pill-blue   { background:#dbeafe; color:#1d4ed8; }
+    .pill-grey   { background:#f3f4f6; color:#4b5563; }
+    .pill-red    { background:#fee2e2; color:#b91c1c; }
+    .pill-orange { background:#fff7ed; color:#c2410c; }
+
+    /* refresh indicator */
+    .refresh-bar {
+      font-size:9px; color:#bbb; text-align:right;
+      padding:2px 0; letter-spacing:.3px;
+    }
+
+    /* events table */
+    .ev-scroll { max-height:190px; overflow-y:auto; }
+    table.ev { width:100%; border-collapse:collapse; font-size:10px; }
+    table.ev th { background:#f4f4f4; padding:3px 5px; text-align:left; position:sticky; top:0; }
+    table.ev td { padding:3px 5px; border-bottom:1px solid #f5f5f5; vertical-align:top; }
+    .ev-type { font-weight:700; }
+    .ev-dispatch { color:#c0392b; }
+    .ev-activate { color:#27ae60; }
+    .ev-event    { color:#e67e22; }
+    .ev-other    { color:#888; }
+
+    /* ══ MAP PANEL ════════════════════════════════════════ */
+    .map-panel { flex:1; position:relative; }
+    .map-panel iframe {
+      width:100%; height:100%; border:none; display:block;
+    }
+
+    /* live blink */
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.3} }
+    .live-dot { color:red; font-size:10px; animation:blink 1.2s infinite; }
+  </style>
+</head>
+<body>
+<div class="wrap">
+
+  <!-- ═══════════════ SIDEBAR ═══════════════ -->
+  <div class="sidebar">
+
+    <!-- Messages from POST -->
+    {% if messages %}
+      {% for msg in messages %}
+        <div class="msg {% if msg.tags == 'error' %}msg-err{% elif msg.tags == 'warning' %}msg-warn{% else %}msg-ok{% endif %}">
+          {{ msg }}
+        </div>
+      {% endfor %}
+    {% endif %}
+
+    <!-- ─ Input Call ─────────────────────── -->
+    <div class="sidebar-section">
+      <h3 class="sec-title">📞 Input Call</h3>
+      <p class="hint">Enter the emergency address in Chandigarh, Mohali or Panchkula.</p>
+      <form method="POST">
+        {% csrf_token %}
+        <label class="f-label" for="{{ form.addr.id_for_label }}">Address</label>
+        <input type="text"
+               name="{{ form.addr.html_name }}"
+               id="{{ form.addr.id_for_label }}"
+               class="f-input"
+               placeholder="e.g. Sector 22 Market, Chandigarh"
+               autocomplete="off">
+        <button type="submit" name="call_submit" class="btn btn-dispatch">
+          🚨 Dispatch Nearest Ambulance
+        </button>
+      </form>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ─ Activate Ambulance ─────────────── -->
+    <div class="sidebar-section">
+      <h3 class="sec-title">🚑 Activate Ambulance</h3>
+      <p class="hint">Put an inactive ambulance back in service.</p>
+      <form method="POST">
+        {% csrf_token %}
+        <label class="f-label">Ambulance ID</label>
+        {{ form2.amb_id }}
+        <button type="submit" name="amb_submit" class="btn btn-activate">
+          ✅ Set Active
+        </button>
+      </form>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ─ Live Status ────────────────────── -->
+    <div class="sidebar-section">
+      <h3 class="sec-title">
+        📊 Live Status
+        <span class="live-dot">●</span>
+      </h3>
+      <div class="status-row" id="status-row">
+        <span class="pill pill-blue">🔵 Active: <b id="cnt-active">{{ active_count }}</b></span>
+        <span class="pill pill-grey">⚫ Inactive: <b id="cnt-inactive">{{ inactive_count }}</b></span>
+        <span class="pill pill-red">🔴 EMS Calls: <b id="cnt-calls">{{ call_count }}</b></span>
+      </div>
+
+      <!-- Legend -->
+      <div style="margin-top:6px; font-size:10px; color:#666; line-height:1.9;">
+        <span style="color:#2b6abe; font-size:13px;">●</span> Active Ambulance &nbsp;
+        <span style="color:#888; font-size:13px;">●</span> Inactive / On Call<br>
+        <span style="color:red; font-size:13px;">●</span> EMS Call &nbsp;
+        <span style="color:orange; font-size:13px;">○</span> Alert Zone (500 m)
+      </div>
+    </div>
+
+    <hr class="divider">
+
+    <!-- ─ Recent Events ──────────────────── -->
+    <div class="sidebar-section" style="flex:1;">
+      <h3 class="sec-title">📋 Recent Events</h3>
+      <div class="refresh-bar" id="refresh-ts">Refreshing every 5 s…</div>
+      <div class="ev-scroll">
+        <table class="ev">
+          <thead><tr><th>Time</th><th>Event</th></tr></thead>
+          <tbody id="events-body">
+            {% for ev in recent_events_query %}
+            <tr>
+              <td style="white-space:nowrap; color:#888;">{{ ev.time|date:"d/m H:i" }}</td>
+              <td>
+                <span class="ev-type {% if ev.event_type == 'Dispatch' %}ev-dispatch{% elif ev.event_type == 'Activate' %}ev-activate{% elif ev.event_type == 'Event' %}ev-event{% else %}ev-other{% endif %}">
+                  {% if ev.event_type == 'Dispatch' %}🚨{% elif ev.event_type == 'Activate' %}✅{% elif ev.event_type == 'Event' %}📞{% else %}ℹ️{% endif %}
+                </span>
+                {{ ev.event_desc }}
+              </td>
+            </tr>
+            {% empty %}
+            <tr><td colspan="2" style="color:#bbb; text-align:center; padding:8px;">
+              No events yet.
+            </td></tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+  </div><!-- /sidebar -->
+
+  <!-- ═══════════════ MAP ═══════════════════ -->
+  <div class="map-panel">
+    <!--
+      Map iframe loads /maponly/ — a fresh Folium HTML page generated from the DB.
+      It auto-reloads every 10 seconds so positions are always current.
+    -->
+    <iframe id="map-frame"
+            src="/maponly/"
+            title="SmartDispatch Live Map"
+            allowfullscreen>
+    </iframe>
+  </div>
+
+</div><!-- /wrap -->
+
+<script>
+// ═══ Real-time updates ═══════════════════════════════════════════════════════
+
+const MAP_REFRESH_INTERVAL  = 10000;  // reload map iframe every 10 s
+const DATA_REFRESH_INTERVAL = 5000;   // poll JSON API every 5 s
+
+// ─── 1. Auto-reload the map iframe ──────────────────────────────────────────
+function reloadMap() {
+  const frame = document.getElementById('map-frame');
+  // Add timestamp to bust cache
+  frame.src = '/maponly/?t=' + Date.now();
+}
+setInterval(reloadMap, MAP_REFRESH_INTERVAL);
+
+// ─── 2. Poll /map-state/ JSON and update sidebar ─────────────────────────────
+function updateSidebar() {
+  fetch('/map-state/')
+    .then(r => r.json())
+    .then(data => {
+      // Update pills
+      document.getElementById('cnt-active').textContent   = data.active_count;
+      document.getElementById('cnt-inactive').textContent = data.inactive_count;
+      document.getElementById('cnt-calls').textContent    = data.call_count;
+
+      // Update events table
+      const tbody = document.getElementById('events-body');
+      if (data.events.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="2" style="color:#bbb;text-align:center;padding:8px;">No events yet.</td></tr>';
+        return;
+      }
+      const typeIcon = {
+        'Dispatch': '🚨', 'Activate': '✅', 'Event': '📞'
+      };
+      const typeClass = {
+        'Dispatch': 'ev-dispatch', 'Activate': 'ev-activate', 'Event': 'ev-event'
+      };
+      tbody.innerHTML = data.events.map(ev => `
+        <tr>
+          <td style="white-space:nowrap;color:#888;">${ev.time}</td>
+          <td>
+            <span class="ev-type ${typeClass[ev.type] || 'ev-other'}">
+              ${typeIcon[ev.type] || 'ℹ️'}
+            </span>
+            ${ev.desc}
+          </td>
+        </tr>
+      `).join('');
+
+      // Update refresh timestamp
+      const now = new Date();
+      document.getElementById('refresh-ts').textContent =
+        'Last updated: ' + now.toLocaleTimeString();
+    })
+    .catch(() => {
+      // silently ignore network errors
+    });
+}
+
+// Poll immediately, then on interval
+updateSidebar();
+setInterval(updateSidebar, DATA_REFRESH_INTERVAL);
+</script>
+
+</body>
+</html>

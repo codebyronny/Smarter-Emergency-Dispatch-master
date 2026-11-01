@@ -1,0 +1,43 @@
+# -----------------------------------------------------------------------
+# SmartDispatch — Python 3.13 compatible requirements
+# -----------------------------------------------------------------------
+
+# Django
+Django==5.1.4
+
+# Async task queue (replaces old django-celery / djcelery)
+celery==5.4.0
+
+# In-process scheduler (no broker needed for auto-repositioning)
+apscheduler==3.10.4
+pytz==2026.6
+
+# Google Maps API client
+googlemaps==4.10.0
+
+# Geospatial / mapping
+geopandas==1.2.0
+folium==0.19.5
+branca==0.8.1
+shapely==2.2.0
+pyogrio==0.13.0
+pyproj==3.8.0
+
+# Data processing
+pandas==3.1.0
+numpy==2.5.4
+
+# Machine learning (K-Means auto-positioning)
+scikit-learn==1.9.1
+scipy==1.18.1
+
+# Visualization (used by notebooks and model_2_funcs)
+matplotlib==3.11.2
+
+# HTML parsing (for folium map post-processing)
+beautifulsoup4==4.13.4
+
+# Jupyter (for running the ML notebooks)
+jupyter
+notebook
+ipykernel

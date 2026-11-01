@@ -1,0 +1,513 @@
+<!DOCTYPE html>
+<html>
+<head>
+    
+    <meta http-equiv="content-type" content="text/html; charset=UTF-8" />
+    
+        <script>
+            L_NO_TOUCH = false;
+            L_DISABLE_3D = false;
+        </script>
+    
+    <style>html, body {width: 100%;height: 100%;margin: 0;padding: 0;}</style>
+    <style>#map {position:absolute;top:0;bottom:0;right:0;left:0;}</style>
+    <script src="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.js"></script>
+    <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet@1.9.3/dist/leaflet.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.2.2/dist/css/bootstrap.min.css"/>
+    <link rel="stylesheet" href="https://netdna.bootstrapcdn.com/bootstrap/3.0.0/css/bootstrap-glyphicons.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.2.0/css/all.min.css"/>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/Leaflet.awesome-markers/2.0.2/leaflet.awesome-markers.css"/>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/gh/python-visualization/folium/folium/templates/leaflet.awesome.rotate.min.css"/>
+    
+            <meta name="viewport" content="width=device-width,
+                initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+            <style>
+                #map_f61bbfc8c67ea625258a62489514c6fa {
+                    position: relative;
+                    width: 100.0%;
+                    height: 100.0%;
+                    left: 0.0%;
+                    top: 0.0%;
+                }
+                .leaflet-container { font-size: 1rem; }
+            </style>
+        
+</head>
+<body>
+    
+    
+        <div style="position:fixed;bottom:30px;left:30px;z-index:1000;
+                    background:white;padding:10px 16px;border-radius:8px;
+                    border:2px solid #aaa;font-size:13px;line-height:1.8;">
+          <b>SmartDispatch — Chandigarh</b><br>
+          <span style="color:#2b6abe;">&#9679;</span> Active Ambulance<br>
+          <span style="color:#888;">&#9679;</span> Inactive Ambulance<br>
+          <span style="color:red;">&#9679;</span> EMS Call
+        </div>
+        
+    
+            <div class="folium-map" id="map_f61bbfc8c67ea625258a62489514c6fa" ></div>
+        
+</body>
+<script>
+    
+    
+            var map_f61bbfc8c67ea625258a62489514c6fa = L.map(
+                "map_f61bbfc8c67ea625258a62489514c6fa",
+                {
+                    center: [30.7333, 76.7794],
+                    crs: L.CRS.EPSG3857,
+                    ...{
+  "zoom": 12,
+  "zoomControl": true,
+  "preferCanvas": false,
+}
+
+                }
+            );
+
+            
+
+        
+    
+            var tile_layer_43f75004dba7b808f27c09a8af1747b0 = L.tileLayer(
+                "https://server.arcgisonline.com/ArcGIS/rest/services/World_Street_Map/MapServer/tile/{z}/{y}/{x}",
+                {
+  "minZoom": 0,
+  "maxZoom": 18,
+  "maxNativeZoom": 18,
+  "noWrap": false,
+  "attribution": "Tiles \u0026copy; \u003ca href=\"https://www.esri.com/\"\u003eEsri\u003c/a\u003e \u0026mdash; Source: Esri, DeLorme, NAVTEQ, USGS",
+  "subdomains": "abc",
+  "detectRetina": false,
+  "tms": false,
+  "opacity": 1,
+}
+
+            );
+        
+    
+            tile_layer_43f75004dba7b808f27c09a8af1747b0.addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var marker_a50ce4cedd2517f5dbb997d559779a3e = L.marker(
+                [37.728845201212586, -122.38399731595096],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_208f7d74513c71a7b2658eb2d52ca0f9 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_72bae2750e1e980e6016d662233b4d2b = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_da5ff514df71433345bb6156cacd883f = $(`<div id="html_da5ff514df71433345bb6156cacd883f" style="width: 100.0%; height: 100.0%;"><b>Ambulance #1</b><br>Status: Active</div>`)[0];
+                popup_72bae2750e1e980e6016d662233b4d2b.setContent(html_da5ff514df71433345bb6156cacd883f);
+            
+        
+
+        marker_a50ce4cedd2517f5dbb997d559779a3e.bindPopup(popup_72bae2750e1e980e6016d662233b4d2b)
+        ;
+
+        
+    
+    
+            marker_a50ce4cedd2517f5dbb997d559779a3e.bindTooltip(
+                `<div>
+                     Amb #1 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a50ce4cedd2517f5dbb997d559779a3e.setIcon(icon_208f7d74513c71a7b2658eb2d52ca0f9);
+            
+    
+            var marker_a7fb13b67047334ea686d5cf4e7c64e6 = L.marker(
+                [37.72149652419528, -122.44198244096332],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_8d60a1ec3784440c9ea1da127ed68731 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_e865eddaf61f6fa72691fa84c0710852 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_9ce56da7f99a87435d7ae78ae4a67ccc = $(`<div id="html_9ce56da7f99a87435d7ae78ae4a67ccc" style="width: 100.0%; height: 100.0%;"><b>Ambulance #2</b><br>Status: Active</div>`)[0];
+                popup_e865eddaf61f6fa72691fa84c0710852.setContent(html_9ce56da7f99a87435d7ae78ae4a67ccc);
+            
+        
+
+        marker_a7fb13b67047334ea686d5cf4e7c64e6.bindPopup(popup_e865eddaf61f6fa72691fa84c0710852)
+        ;
+
+        
+    
+    
+            marker_a7fb13b67047334ea686d5cf4e7c64e6.bindTooltip(
+                `<div>
+                     Amb #2 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a7fb13b67047334ea686d5cf4e7c64e6.setIcon(icon_8d60a1ec3784440c9ea1da127ed68731);
+            
+    
+            var marker_268464ae7a1f709ec114b1ca31fe42f5 = L.marker(
+                [37.77367472943096, -122.41136535115623],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_56bf2018c64be5c4c8ae848fe9d9e756 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_bc7f45d6cde1e1ef9250389ed4f0b1ee = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_ebec9c9ef34c72b60d8c8df13f00c0cc = $(`<div id="html_ebec9c9ef34c72b60d8c8df13f00c0cc" style="width: 100.0%; height: 100.0%;"><b>Ambulance #3</b><br>Status: Active</div>`)[0];
+                popup_bc7f45d6cde1e1ef9250389ed4f0b1ee.setContent(html_ebec9c9ef34c72b60d8c8df13f00c0cc);
+            
+        
+
+        marker_268464ae7a1f709ec114b1ca31fe42f5.bindPopup(popup_bc7f45d6cde1e1ef9250389ed4f0b1ee)
+        ;
+
+        
+    
+    
+            marker_268464ae7a1f709ec114b1ca31fe42f5.bindTooltip(
+                `<div>
+                     Amb #3 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_268464ae7a1f709ec114b1ca31fe42f5.setIcon(icon_56bf2018c64be5c4c8ae848fe9d9e756);
+            
+    
+            var marker_006fd7f00533c8d2e2b305307a08b2be = L.marker(
+                [37.76843410729765, -122.49066166914123],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_35f353367e8ca5c902251c7ba85b9f95 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_f326aa0c74f87b62f36d6818c00fa610 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_822e608ef2dfa5a3ffd80083ae3625c0 = $(`<div id="html_822e608ef2dfa5a3ffd80083ae3625c0" style="width: 100.0%; height: 100.0%;"><b>Ambulance #4</b><br>Status: Active</div>`)[0];
+                popup_f326aa0c74f87b62f36d6818c00fa610.setContent(html_822e608ef2dfa5a3ffd80083ae3625c0);
+            
+        
+
+        marker_006fd7f00533c8d2e2b305307a08b2be.bindPopup(popup_f326aa0c74f87b62f36d6818c00fa610)
+        ;
+
+        
+    
+    
+            marker_006fd7f00533c8d2e2b305307a08b2be.bindTooltip(
+                `<div>
+                     Amb #4 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_006fd7f00533c8d2e2b305307a08b2be.setIcon(icon_35f353367e8ca5c902251c7ba85b9f95);
+            
+    
+            var marker_00b37f0d8a87911e4773cd93737dc40d = L.marker(
+                [37.73096439103959, -122.48448552001908],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_f83e39d96e0a0a70e70abb4e2379a65c = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_d949d38c70b32e6f7042de0a1f5b2ea2 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_0fa215a2fc6b927c6189c0e13cfd5f1b = $(`<div id="html_0fa215a2fc6b927c6189c0e13cfd5f1b" style="width: 100.0%; height: 100.0%;"><b>Ambulance #5</b><br>Status: Active</div>`)[0];
+                popup_d949d38c70b32e6f7042de0a1f5b2ea2.setContent(html_0fa215a2fc6b927c6189c0e13cfd5f1b);
+            
+        
+
+        marker_00b37f0d8a87911e4773cd93737dc40d.bindPopup(popup_d949d38c70b32e6f7042de0a1f5b2ea2)
+        ;
+
+        
+    
+    
+            marker_00b37f0d8a87911e4773cd93737dc40d.bindTooltip(
+                `<div>
+                     Amb #5 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_00b37f0d8a87911e4773cd93737dc40d.setIcon(icon_f83e39d96e0a0a70e70abb4e2379a65c);
+            
+    
+            var marker_0eff8d43a4419dbb45a71a10678cb342 = L.marker(
+                [37.744354189898054, -122.41350836377785],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_9ccc1e733e3c8401ffaee427d80873d8 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_b23fb007bfc8aa9c8149ce95e2d389f6 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_25fcc40e10162f34ef84ec942ddda27f = $(`<div id="html_25fcc40e10162f34ef84ec942ddda27f" style="width: 100.0%; height: 100.0%;"><b>Ambulance #6</b><br>Status: Active</div>`)[0];
+                popup_b23fb007bfc8aa9c8149ce95e2d389f6.setContent(html_25fcc40e10162f34ef84ec942ddda27f);
+            
+        
+
+        marker_0eff8d43a4419dbb45a71a10678cb342.bindPopup(popup_b23fb007bfc8aa9c8149ce95e2d389f6)
+        ;
+
+        
+    
+    
+            marker_0eff8d43a4419dbb45a71a10678cb342.bindTooltip(
+                `<div>
+                     Amb #6 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_0eff8d43a4419dbb45a71a10678cb342.setIcon(icon_9ccc1e733e3c8401ffaee427d80873d8);
+            
+    
+            var marker_a7cee40e2e19e248fc14d259715093a9 = L.marker(
+                [37.77088844273621, -122.45139902003845],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_078f5494e2e6ffccdcccbbbdb230b92b = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_973b3e5e82e3faa5032b278e05f02f58 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_6af6070cc4d0cdd18d0232d64cb807fa = $(`<div id="html_6af6070cc4d0cdd18d0232d64cb807fa" style="width: 100.0%; height: 100.0%;"><b>Ambulance #7</b><br>Status: Active</div>`)[0];
+                popup_973b3e5e82e3faa5032b278e05f02f58.setContent(html_6af6070cc4d0cdd18d0232d64cb807fa);
+            
+        
+
+        marker_a7cee40e2e19e248fc14d259715093a9.bindPopup(popup_973b3e5e82e3faa5032b278e05f02f58)
+        ;
+
+        
+    
+    
+            marker_a7cee40e2e19e248fc14d259715093a9.bindTooltip(
+                `<div>
+                     Amb #7 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_a7cee40e2e19e248fc14d259715093a9.setIcon(icon_078f5494e2e6ffccdcccbbbdb230b92b);
+            
+    
+            var marker_895f60dd97ab9c064bf9ce0cd027d815 = L.marker(
+                [37.796297087863145, -122.42116362774918],
+                {
+}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+            var icon_15bb6405bd82c9bdd682e3b7c68fbbe6 = L.AwesomeMarkers.icon(
+                {
+  "markerColor": "blue",
+  "iconColor": "white",
+  "icon": "plus",
+  "prefix": "fa",
+  "extraClasses": "fa-rotate-0",
+}
+            );
+        
+    
+        var popup_7abd506ffcabede50ec34c7e26d82751 = L.popup({
+  "maxWidth": 200,
+});
+
+        
+            
+                var html_4607aecaca871af60f3fec10ed0aa247 = $(`<div id="html_4607aecaca871af60f3fec10ed0aa247" style="width: 100.0%; height: 100.0%;"><b>Ambulance #8</b><br>Status: Active</div>`)[0];
+                popup_7abd506ffcabede50ec34c7e26d82751.setContent(html_4607aecaca871af60f3fec10ed0aa247);
+            
+        
+
+        marker_895f60dd97ab9c064bf9ce0cd027d815.bindPopup(popup_7abd506ffcabede50ec34c7e26d82751)
+        ;
+
+        
+    
+    
+            marker_895f60dd97ab9c064bf9ce0cd027d815.bindTooltip(
+                `<div>
+                     Amb #8 — Active
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+    
+                marker_895f60dd97ab9c064bf9ce0cd027d815.setIcon(icon_15bb6405bd82c9bdd682e3b7c68fbbe6);
+            
+    
+            var circle_marker_5ac4993d982c8f561a60ea92ebb0db7a = L.circleMarker(
+                [28.597062, 77.34823519999999],
+                {"bubblingMouseEvents": true, "color": "red", "dashArray": null, "dashOffset": null, "fill": true, "fillColor": "red", "fillOpacity": 0.7, "fillRule": "evenodd", "lineCap": "round", "lineJoin": "round", "opacity": 1.0, "radius": 12, "stroke": true, "weight": 3}
+            ).addTo(map_f61bbfc8c67ea625258a62489514c6fa);
+        
+    
+        var popup_db03e707f4a679471656609455d55571 = L.popup({
+  "maxWidth": 250,
+});
+
+        
+            
+                var html_f93bcbcc5ce1ccde54842269bdc1bd57 = $(`<div id="html_f93bcbcc5ce1ccde54842269bdc1bd57" style="width: 100.0%; height: 100.0%;"><b>EMS Call #144</b><br>sector 22</div>`)[0];
+                popup_db03e707f4a679471656609455d55571.setContent(html_f93bcbcc5ce1ccde54842269bdc1bd57);
+            
+        
+
+        circle_marker_5ac4993d982c8f561a60ea92ebb0db7a.bindPopup(popup_db03e707f4a679471656609455d55571)
+        ;
+
+        
+    
+    
+            circle_marker_5ac4993d982c8f561a60ea92ebb0db7a.bindTooltip(
+                `<div>
+                     EMS Call — sector 22
+                 </div>`,
+                {
+  "sticky": true,
+}
+            );
+        
+</script>
+</html>
